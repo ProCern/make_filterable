@@ -1,7 +1,7 @@
 # makeFilterable, Easy filtering for select fields or tables.
 # by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 #
-# Version 0.1.0
+# Version 0.1.1
 # Full source at https://github.com/absperf/make_filterable
 # Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 #
@@ -144,7 +144,8 @@ class FilterableSelect
       when 9, 13, 16, 17, 18, 19, 38, 40, 91, 92
         # ignore these
       else
-        @filterResults()
+        clearTimeout(@filterTimer) if @filterTimer?
+        @filterTimer = setTimeout @filterResults, 200
 
   filterResults: =>
     @dropdown.find('li.selected').removeClass 'selected'
@@ -273,7 +274,8 @@ class FilterableTable
       when 9, 13, 16, 17, 18, 19, 27, 38, 40, 91, 92
         # ignore these
       else
-        @filterResults()
+        clearTimeout(@filterTimer) if @filterTimer?
+        @filterTimer = setTimeout @filterResults, 200
 
   filterResults: =>
     searchText = $.trim @searchField.val()

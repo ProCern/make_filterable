@@ -1,7 +1,7 @@
 // makeFilterable, Easy filtering for select fields or tables.
 // by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 //
-// Version 0.1.0
+// Version 0.1.1
 // Full source at https://github.com/absperf/make_filterable
 // Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 //
@@ -177,7 +177,8 @@
         case 92:
           break;
         default:
-          return this.filterResults();
+          if (this.filterTimer != null) clearTimeout(this.filterTimer);
+          return this.filterTimer = setTimeout(this.filterResults, 200);
       }
     };
 
@@ -348,7 +349,8 @@
         case 92:
           break;
         default:
-          return this.filterResults();
+          if (this.filterTimer != null) clearTimeout(this.filterTimer);
+          return this.filterTimer = setTimeout(this.filterResults, 200);
       }
     };
 
