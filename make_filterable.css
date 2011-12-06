@@ -1,0 +1,64 @@
+.filterable-button {
+  display: inline-block;
+  width: 13px;
+  height: 24px;
+  background: url(/filter.png) no-repeat 0 6px;
+  margin-left: 7px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.filterable-dropdown {
+  border: 1px solid #ccc;
+  background: #fff;
+  z-index: 1000;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -o-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -khtml-border-radius: 3px;
+  border-radius: 3px;
+}
+
+.filterable-dropdown input, .filterable-dropdown ul, .filterable-dropdown li {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.filterable-dropdown .filterable-input-container {
+  padding: 4px;
+}
+
+.filterable-dropdown ul {
+  list-style: none;
+  max-height: 120px;
+  overflow: auto;
+}
+
+.filterable-dropdown ul li.selected {
+  background-color: #3875d7;
+  color: white;
+}
+
+.filterable-dropdown ul li p {
+  padding: 3px;
+  margin: 0;
+  cursor: pointer;
+  font-size: 0.813em;
+  line-height: 1.385em;
+}
+
+.filterable-dropdown ul li p:hover {
+  background-color: #3875d7;
+  color: white;
+}
+
+.filterable-dropdown p.filterable-no-match {
+  padding: 3px;
+  margin: 0;
+  text-align: center;
+  color: #777;
+  font-size: 0.813em;
+  line-height: 1.385em;
+}
