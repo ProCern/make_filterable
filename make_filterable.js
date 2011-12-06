@@ -1,3 +1,37 @@
+// makeFilterable, Easy filtering for select fields or tables.
+// by Adam Vaughan for Absolute Performance, http://absolute-performance.com
+//
+// Version 0.1.0
+// Full source at https://github.com/absperf/make_filterable
+// Copyright (c) 2011 Absolute Performance http://absolute-performance.com
+//
+// MIT License, https://github.com/absperf/make_filterable/blob/master/LICENSE.md
+//
+// To use with a select field, do
+//   $('select').makeFilterable()
+//
+// This will add a small magnifying glass next to the select field. When the
+// magnifying glass is clicked, popup will be displayed with a text field and
+// all of the options that are in the select field. These options can be
+// searched by entering text in the text field. The list can be navigated with
+// the up/down arrows and options can be chosen by pressing enter or by
+// clicking. When an option is chosen, the select field is updated to reflect
+// the choice.
+//
+// The following options can be passed to the makeFilterable() call:
+//   buttonClass, defaults to 'filterable-button'
+//   dropdownClass, defaults to 'filterable-dropdown'
+//   noMatchClass, defaults to 'filterable-no-match'
+//   noMatchMessage, defaults to 'No Matches'
+//
+// To use with a table, do
+//   $('table').makeFilterable({searchField: 'input'})
+//
+// You must provide a field that will act as the search field. In addition, the following options can be passed to the makeFilterable() call:
+//   valueSelector, defaults to 'td'
+//
+// This plugin was strongly influenced by https://github.com/harvesthq/chosen
+
 (function() {
   var $, FilterableSelect, FilterableTable;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
