@@ -1,7 +1,7 @@
 // makeFilterable, Easy filtering for select fields or tables.
 // by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 //
-// Version 0.1.1
+// Version 0.1.2
 // Full source at https://github.com/absperf/make_filterable
 // Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 //
@@ -23,12 +23,14 @@
 //   dropdownClass, defaults to 'filterable-dropdown'
 //   noMatchClass, defaults to 'filterable-no-match'
 //   noMatchMessage, defaults to 'No Matches'
+//   afterFilter, callback that is executed after the results are filtered
 //
 // To use with a table, do
 //   $('table').makeFilterable({searchField: 'input'})
 //
 // You must provide a field that will act as the search field. In addition, the following options can be passed to the makeFilterable() call:
 //   valueSelector, defaults to 'td'
+//   afterFilter, callback that is executed after the results are filtered
 //
 // This plugin was strongly influenced by https://github.com/harvesthq/chosen
 
@@ -89,6 +91,7 @@
       var filterButton;
       var _this = this;
       this.field = $(field);
+      this.afterFilter = options.afterFilter;
       this.searchField = $('<input type="text" autocomplete="off">');
       this.searchField.keyup(this.filterDropdown);
       this.searchField.keydown(this.navigateDropdown);
@@ -189,7 +192,7 @@
       this.noMatchMessage.hide();
       searchText = $.trim(this.searchField.val());
       if (searchText.length === 0) {
-        return this.dropdown.find('li').show();
+        this.dropdown.find('li').show();
       } else {
         regex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
         matches = 0;
@@ -204,11 +207,12 @@
           }
         });
         if (matches > 0) {
-          return this.selectFirstItem();
+          this.selectFirstItem();
         } else {
-          return this.noMatchMessage.show();
+          this.noMatchMessage.show();
         }
       }
+      if (this.afterFilter != null) return this.afterFilter();
     };
 
     FilterableSelect.prototype.applySelection = function() {
@@ -326,6 +330,7 @@
     function FilterableTable(table, options) {
       this.filterResults = __bind(this.filterResults, this);
       this.filterTable = __bind(this.filterTable, this);      this.table = $(table);
+      this.afterFilter = options.afterFilter;
       this.valueSelector = options.valueSelector;
       this.searchField = $(options.searchField);
       this.searchField.attr('autocomplete', 'off');
@@ -359,10 +364,10 @@
       var _this = this;
       searchText = $.trim(this.searchField.val());
       if (searchText.length === 0) {
-        return this.table.find('tbody tr').show();
+        this.table.find('tbody tr').show();
       } else {
         regex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
-        return this.table.find('tbody tr').each(function(index, row) {
+        this.table.find('tbody tr').each(function(index, row) {
           $(row).hide();
           return $(row).find(_this.valueSelector).each(function(index, element) {
             if (regex.test($(element).text())) {
@@ -371,6 +376,7 @@
           });
         });
       }
+      if (this.afterFilter != null) return this.afterFilter();
     };
 
     return FilterableTable;

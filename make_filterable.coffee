@@ -1,7 +1,7 @@
 # makeFilterable, Easy filtering for select fields or tables.
 # by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 #
-# Version 0.1.1
+# Version 0.1.2
 # Full source at https://github.com/absperf/make_filterable
 # Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 #
@@ -23,12 +23,14 @@
 #   dropdownClass, defaults to 'filterable-dropdown'
 #   noMatchClass, defaults to 'filterable-no-match'
 #   noMatchMessage, defaults to 'No Matches'
+#   afterFilter, callback that is executed after the results are filtered
 #
 # To use with a table, do
 #   $('table').makeFilterable({searchField: 'input'})
 #
 # You must provide a field that will act as the search field. In addition, the following options can be passed to the makeFilterable() call:
 #   valueSelector, defaults to 'td'
+#   afterFilter, callback that is executed after the results are filtered
 #
 # This plugin was strongly influenced by https://github.com/harvesthq/chosen
 
@@ -62,6 +64,7 @@ $.fn.extend
 class FilterableSelect
   constructor: (field, options) ->
     @field = $(field)
+    @afterFilter = options.afterFilter
 
     @searchField = $('<input type="text" autocomplete="off">')
     @searchField.keyup @filterDropdown
@@ -173,6 +176,8 @@ class FilterableSelect
       else
         @noMatchMessage.show()
 
+    @afterFilter() if @afterFilter?
+
   applySelection: =>
     selected = @dropdown.find 'li.selected'
 
@@ -260,6 +265,7 @@ class FilterableSelect
 class FilterableTable
   constructor: (table, options) ->
     @table = $(table)
+    @afterFilter = options.afterFilter
 
     @valueSelector = options.valueSelector
 
@@ -291,3 +297,5 @@ class FilterableTable
         $(row).find(@valueSelector).each (index, element) =>
           if regex.test $(element).text()
             $(element).parents('tr').show()
+
+    @afterFilter() if @afterFilter?
