@@ -1,7 +1,7 @@
 # makeFilterable, Easy filtering for select fields or tables.
 # by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 #
-# Version 0.1.3
+# Version 0.1.4
 # Full source at https://github.com/absperf/make_filterable
 # Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 #
@@ -148,7 +148,7 @@ class FilterableSelect
         # ignore these
       else
         clearTimeout(@filterTimer) if @filterTimer?
-        @filterTimer = setTimeout @filterResults, 200
+        @filterTimer = setTimeout @filterResults, 300
 
   filterResults: =>
     @dropdown.find('li.selected').removeClass 'selected'
@@ -249,7 +249,7 @@ class FilterableSelect
 
   windowResized: (event) =>
     clearTimeout(@resizeTimer) if @resizeTimer?
-    @resizeTimer = setTimeout @positionDropdown, 100
+    @resizeTimer = setTimeout @positionDropdown, 300
 
   documentClicked: (event) =>
     if $(event.target).parents("##{@dropdownId}").length == 0
@@ -281,7 +281,7 @@ class FilterableTable
         # ignore these
       else
         clearTimeout(@filterTimer) if @filterTimer?
-        @filterTimer = setTimeout @filterResults, 200
+        @filterTimer = setTimeout @filterResults, 300
 
   filterResults: =>
     searchText = $.trim @searchField.val()

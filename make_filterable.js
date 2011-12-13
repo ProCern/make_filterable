@@ -1,7 +1,7 @@
 // makeFilterable, Easy filtering for select fields or tables.
 // by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 //
-// Version 0.1.3
+// Version 0.1.4
 // Full source at https://github.com/absperf/make_filterable
 // Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 //
@@ -181,7 +181,7 @@
           break;
         default:
           if (this.filterTimer != null) clearTimeout(this.filterTimer);
-          return this.filterTimer = setTimeout(this.filterResults, 200);
+          return this.filterTimer = setTimeout(this.filterResults, 300);
       }
     };
 
@@ -297,7 +297,7 @@
 
     FilterableSelect.prototype.windowResized = function(event) {
       if (this.resizeTimer != null) clearTimeout(this.resizeTimer);
-      return this.resizeTimer = setTimeout(this.positionDropdown, 100);
+      return this.resizeTimer = setTimeout(this.positionDropdown, 300);
     };
 
     FilterableSelect.prototype.documentClicked = function(event) {
@@ -355,7 +355,7 @@
           break;
         default:
           if (this.filterTimer != null) clearTimeout(this.filterTimer);
-          return this.filterTimer = setTimeout(this.filterResults, 200);
+          return this.filterTimer = setTimeout(this.filterResults, 300);
       }
     };
 
