@@ -1,7 +1,7 @@
 // makeFilterable, Easy filtering for select fields or tables.
 // by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 //
-// Version 0.1.4
+// Version 0.1.5
 // Full source at https://github.com/absperf/make_filterable
 // Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 //
@@ -28,15 +28,16 @@
 // To use with a table, do
 //   $('table').makeFilterable({searchField: 'input'})
 //
-// You must provide a field that will act as the search field. In addition, the following options can be passed to the makeFilterable() call:
+// You must provide a field that will act as the search field. In addition, the
+// following options can be passed to the makeFilterable() call:
 //   valueSelector, defaults to 'td'
 //   afterFilter, callback that is executed after the results are filtered
 //
 // This plugin was strongly influenced by https://github.com/harvesthq/chosen
 
 (function() {
-  var $, FilterableSelect, FilterableTable;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var $, FilterableSelect, FilterableTable,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   $ = jQuery;
 
@@ -72,6 +73,7 @@
   FilterableSelect = (function() {
 
     function FilterableSelect(field, options) {
+      this.filterableSelectOpened = __bind(this.filterableSelectOpened, this);
       this.documentClicked = __bind(this.documentClicked, this);
       this.windowResized = __bind(this.windowResized, this);
       this.itemClicked = __bind(this.itemClicked, this);
@@ -87,9 +89,11 @@
       this.filterDropdown = __bind(this.filterDropdown, this);
       this.positionDropdown = __bind(this.positionDropdown, this);
       this.populateDropdown = __bind(this.populateDropdown, this);
+      this.showDropdown = __bind(this.showDropdown, this);
+      this.hideDropdown = __bind(this.hideDropdown, this);
       this.toggleDropdown = __bind(this.toggleDropdown, this);
-      var filterButton;
-      var _this = this;
+      var filterButton,
+        _this = this;
       this.field = $(field);
       this.afterFilter = options.afterFilter;
       this.searchField = $('<input type="text" autocomplete="off">');
@@ -114,29 +118,41 @@
     }
 
     FilterableSelect.prototype.toggleDropdown = function() {
-      var listItems;
       this.noMatchMessage.hide();
       this.searchField.val('');
       if (this.dropdown.is(':visible')) {
-        this.dropdown.hide();
-        listItems = this.dropdown.find('ul li');
-        listItems.unbind('click', this.itemClicked);
-        listItems.remove();
-        $(document).unbind('click', this.documentClicked);
-        return $(window).unbind('resize', this.windowResized);
+        return this.hideDropdown();
       } else {
-        $(document).click(this.documentClicked);
-        $(window).resize(this.windowResized);
-        this.populateDropdown();
-        this.positionDropdown();
-        this.dropdown.show();
-        return this.searchField.focus();
+        return this.showDropdown();
       }
     };
 
+    FilterableSelect.prototype.hideDropdown = function() {
+      var listItems;
+      this.dropdown.hide();
+      listItems = this.dropdown.find('ul li');
+      listItems.unbind('click', this.itemClicked);
+      listItems.remove();
+      $(document).unbind('click', this.documentClicked);
+      $(document).unbind('filterableSelectOpen', this.filterableSelectOpened);
+      $(window).unbind('resize', this.windowResized);
+      return $(document).trigger('filterableSelectClose', this.dropdownId);
+    };
+
+    FilterableSelect.prototype.showDropdown = function() {
+      $(document).click(this.documentClicked);
+      $(document).bind('filterableSelectOpen', this.filterableSelectOpened);
+      $(window).resize(this.windowResized);
+      this.populateDropdown();
+      this.positionDropdown();
+      this.dropdown.show();
+      this.searchField.focus();
+      return $(document).trigger('filterableSelectOpen', this.dropdownId);
+    };
+
     FilterableSelect.prototype.populateDropdown = function() {
-      var list;
-      var _this = this;
+      var list,
+        _this = this;
       list = this.dropdown.find('ul');
       this.field.find('option').each(function(index, option) {
         var text, value;
@@ -157,7 +173,8 @@
       top = position.top;
       left = position.left;
       this.dropdown.css('position', 'absolute');
-      this.dropdown.css('width', "" + (width - 2) + "px");
+      this.dropdown.css('width', 'auto');
+      this.dropdown.css('min-width', "" + (width - 2) + "px");
       this.dropdown.css('top', "" + (top + height + 4) + "px");
       return this.dropdown.css('left', "" + left + "px");
     };
@@ -167,7 +184,7 @@
       key = (_ref = event.which) != null ? _ref : event.keyCode;
       switch (key) {
         case 27:
-          return this.toggleDropdown();
+          return this.hideDropdown();
         case 9:
         case 13:
         case 16:
@@ -186,8 +203,8 @@
     };
 
     FilterableSelect.prototype.filterResults = function() {
-      var matches, regex, searchText;
-      var _this = this;
+      var matches, regex, searchText,
+        _this = this;
       this.dropdown.find('li.selected').removeClass('selected');
       this.noMatchMessage.hide();
       searchText = $.trim(this.searchField.val());
@@ -239,11 +256,11 @@
     };
 
     FilterableSelect.prototype.selectNextItem = function() {
-      return this.selectItem(this.dropdown.find('li.selected').next('li:visible'));
+      return this.selectItem($(this.dropdown.find('li.selected').nextAll('li:visible')[0]));
     };
 
     FilterableSelect.prototype.selectPreviousItem = function(currentSelectedItem) {
-      return this.selectItem(this.dropdown.find('li.selected').prev('li:visible'));
+      return this.selectItem($(this.dropdown.find('li.selected').prevAll('li:visible')[0]));
     };
 
     FilterableSelect.prototype.navigateDropdown = function(event) {
@@ -255,14 +272,14 @@
           event.preventDefault();
           return this.applySelection();
         case 38:
-          if (selected.length === 0 || selected.prev(':visible').length === 0) {
+          if (selected.length === 0 || selected.prevAll(':visible').length === 0) {
             this.selectLastItem();
           } else {
             this.selectPreviousItem();
           }
           return this.scrollToSelectedResult();
         case 40:
-          if (selected.length === 0 || selected.next(':visible').length === 0) {
+          if (selected.length === 0 || selected.nextAll(':visible').length === 0) {
             this.selectFirstItem();
           } else {
             this.selectNextItem();
@@ -302,8 +319,12 @@
 
     FilterableSelect.prototype.documentClicked = function(event) {
       if ($(event.target).parents("#" + this.dropdownId).length === 0) {
-        return this.toggleDropdown();
+        return this.hideDropdown();
       }
+    };
+
+    FilterableSelect.prototype.filterableSelectOpened = function(event, id) {
+      if (this.dropdownId !== id) return this.hideDropdown();
     };
 
     FilterableSelect.prototype.getRandomId = function() {
@@ -360,8 +381,8 @@
     };
 
     FilterableTable.prototype.filterResults = function() {
-      var regex, searchText;
-      var _this = this;
+      var regex, searchText,
+        _this = this;
       searchText = $.trim(this.searchField.val());
       if (searchText.length === 0) {
         this.table.find('tbody tr').show();
