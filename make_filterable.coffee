@@ -108,10 +108,14 @@ class FilterableSelect
     listItems.remove()
 
     $(document).unbind 'click', @documentClicked
+    $(document).unbind 'filterableSelectOpen', @filterableSelectOpened
     $(window).unbind 'resize', @windowResized
+
+    $(document).trigger 'filterableSelectClose', @dropdownId
 
   showDropdown: =>
     $(document).click @documentClicked
+    $(document).bind 'filterableSelectOpen', @filterableSelectOpened
     $(window).resize @windowResized
 
     @populateDropdown()
@@ -120,6 +124,7 @@ class FilterableSelect
     @dropdown.show()
     @searchField.focus()
 
+    $(document).trigger 'filterableSelectOpen', @dropdownId
 
   populateDropdown: =>
     list = @dropdown.find 'ul'
@@ -262,6 +267,9 @@ class FilterableSelect
   documentClicked: (event) =>
     if $(event.target).parents("##{@dropdownId}").length == 0
       @hideDropdown()
+
+  filterableSelectOpened: (event, id)  =>
+    @hideDropdown() unless @dropdownId == id
 
   getRandomId: ->
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
