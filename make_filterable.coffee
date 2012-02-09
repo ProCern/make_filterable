@@ -204,10 +204,10 @@ class FilterableSelect
     @selectItem @dropdown.find('li:visible').last()
 
   selectNextItem: =>
-    @selectItem @dropdown.find('li.selected').next('li:visible')
+    @selectItem $(@dropdown.find('li.selected').nextAll('li:visible')[0])
 
   selectPreviousItem: (currentSelectedItem) =>
-    @selectItem @dropdown.find('li.selected').prev('li:visible')
+    @selectItem $(@dropdown.find('li.selected').prevAll('li:visible')[0])
 
   navigateDropdown: (event) =>
     key = event.which ? event.keyCode
@@ -218,14 +218,14 @@ class FilterableSelect
         event.preventDefault()
         @applySelection()
       when 38 # up arrow
-        if selected.length == 0 or selected.prev(':visible').length == 0
+        if selected.length == 0 or selected.prevAll(':visible').length == 0
           @selectLastItem()
         else
           @selectPreviousItem()
 
         @scrollToSelectedResult()
       when 40 # down arrow
-        if selected.length == 0 or selected.next(':visible').length == 0
+        if selected.length == 0 or selected.nextAll(':visible').length == 0
           @selectFirstItem()
         else
           @selectNextItem()
