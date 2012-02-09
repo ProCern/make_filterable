@@ -260,7 +260,7 @@ class FilterableSelect
 
   documentClicked: (event) =>
     if $(event.target).parents("##{@dropdownId}").length == 0
-      @toggleDropdown()
+      @hideDropdown()
 
   getRandomId: ->
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
