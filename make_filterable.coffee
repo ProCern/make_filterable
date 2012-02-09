@@ -141,7 +141,8 @@ class FilterableSelect
     left = position.left
 
     @dropdown.css 'position', 'absolute'
-    @dropdown.css 'width', "#{width - 2}px"
+    @dropdown.css 'width', 'auto'
+    @dropdown.css 'min-width', "#{width - 2}px"
     @dropdown.css 'top', "#{top + height + 4}px"
     @dropdown.css 'left', "#{left}px"
 
