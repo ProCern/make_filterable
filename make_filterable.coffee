@@ -96,23 +96,30 @@ class FilterableSelect
     @searchField.val ''
 
     if @dropdown.is ':visible'
-      @dropdown.hide()
-
-      listItems = @dropdown.find 'ul li'
-      listItems.unbind 'click', @itemClicked
-      listItems.remove()
-
-      $(document).unbind 'click', @documentClicked
-      $(window).unbind 'resize', @windowResized
+      @hideDropdown()
     else
-      $(document).click @documentClicked
-      $(window).resize @windowResized
+      @showDropdown()
 
-      @populateDropdown()
-      @positionDropdown()
+  hideDropdown: =>
+    @dropdown.hide()
 
-      @dropdown.show()
-      @searchField.focus()
+    listItems = @dropdown.find 'ul li'
+    listItems.unbind 'click', @itemClicked
+    listItems.remove()
+
+    $(document).unbind 'click', @documentClicked
+    $(window).unbind 'resize', @windowResized
+
+  showDropdown: =>
+    $(document).click @documentClicked
+    $(window).resize @windowResized
+
+    @populateDropdown()
+    @positionDropdown()
+
+    @dropdown.show()
+    @searchField.focus()
+
 
   populateDropdown: =>
     list = @dropdown.find 'ul'
@@ -143,7 +150,7 @@ class FilterableSelect
 
     switch key
       when 27 # escape
-        @toggleDropdown()
+        @hideDropdown()
       when 9, 13, 16, 17, 18, 19, 38, 40, 91, 92
         # ignore these
       else
