@@ -1,7 +1,7 @@
 // makeFilterable, Easy filtering for select fields or tables.
 // by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 //
-// Version 0.1.5
+// Version 0.1.6
 // Full source at https://github.com/absperf/make_filterable
 // Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 //
@@ -25,6 +25,9 @@
 //   noMatchMessage, defaults to 'No Matches'
 //   afterFilter, callback that is executed after the results are filtered
 //
+// To use with a list, do
+//   $('ul').makeFilterable({searchField: 'input'})
+//
 // To use with a table, do
 //   $('table').makeFilterable({searchField: 'input'})
 //
@@ -36,13 +39,16 @@
 // This plugin was strongly influenced by https://github.com/harvesthq/chosen
 
 (function() {
-  var $, FilterableSelect, FilterableTable,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var $, FilterableList, FilterableSelect, FilterableTable,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   $ = jQuery;
 
   $.fn.extend({
     makeFilterable: function(options) {
+      if (options == null) options = {};
       if ($.browser.msie && ($.browser.version === '6.0' || $.browser.version === '7.0')) {
         return this;
       }
@@ -64,6 +70,12 @@
             return new FilterableTable(this, settings);
           } else {
             return console.log('No search field provided for filtering table');
+          }
+        } else if ($(this).is('ul')) {
+          if (options.searchField != null) {
+            return new FilterableList(this, options);
+          } else {
+            return console.log('No search field provided for filtering list');
           }
         }
       });
@@ -346,19 +358,18 @@
 
   })();
 
-  FilterableTable = (function() {
+  FilterableList = (function() {
 
-    function FilterableTable(table, options) {
+    function FilterableList(element, options) {
       this.filterResults = __bind(this.filterResults, this);
-      this.filterTable = __bind(this.filterTable, this);      this.table = $(table);
+      this.filter = __bind(this.filter, this);      this.element = $(element);
       this.afterFilter = options.afterFilter;
-      this.valueSelector = options.valueSelector;
       this.searchField = $(options.searchField);
       this.searchField.attr('autocomplete', 'off');
-      this.searchField.keyup(this.filterTable);
+      this.searchField.keyup(this.filter);
     }
 
-    FilterableTable.prototype.filterTable = function(event) {
+    FilterableList.prototype.filter = function(event) {
       var key, _ref;
       key = (_ref = event.which) != null ? _ref : event.keyCode;
       switch (key) {
@@ -380,15 +391,46 @@
       }
     };
 
+    FilterableList.prototype.filterResults = function() {
+      var regex, searchText,
+        _this = this;
+      searchText = $.trim(this.searchField.val());
+      if (searchText.length === 0) {
+        this.element.find('li').show();
+      } else {
+        regex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
+        this.element.find('li').each(function(index, row) {
+          $(row).hide();
+          return $(row).each(function(index, element) {
+            if (regex.test($(element).text())) return $(element).show();
+          });
+        });
+      }
+      if (this.afterFilter != null) return this.afterFilter(this.element);
+    };
+
+    return FilterableList;
+
+  })();
+
+  FilterableTable = (function(_super) {
+
+    __extends(FilterableTable, _super);
+
+    function FilterableTable(element, options) {
+      this.filterResults = __bind(this.filterResults, this);      FilterableTable.__super__.constructor.apply(this, arguments);
+      this.valueSelector = options.valueSelector;
+    }
+
     FilterableTable.prototype.filterResults = function() {
       var regex, searchText,
         _this = this;
       searchText = $.trim(this.searchField.val());
       if (searchText.length === 0) {
-        this.table.find('tbody tr').show();
+        this.element.find('tbody tr').show();
       } else {
         regex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
-        this.table.find('tbody tr').each(function(index, row) {
+        this.element.find('tbody tr').each(function(index, row) {
           $(row).hide();
           return $(row).find(_this.valueSelector).each(function(index, element) {
             if (regex.test($(element).text())) {
@@ -397,11 +439,11 @@
           });
         });
       }
-      if (this.afterFilter != null) return this.afterFilter(this.table);
+      if (this.afterFilter != null) return this.afterFilter(this.element);
     };
 
     return FilterableTable;
 
-  })();
+  })(FilterableList);
 
 }).call(this);

@@ -1,7 +1,7 @@
 # makeFilterable, Easy filtering for select fields or tables.
 # by Adam Vaughan for Absolute Performance, http://absolute-performance.com
 #
-# Version 0.1.5
+# Version 0.1.6
 # Full source at https://github.com/absperf/make_filterable
 # Copyright (c) 2011 Absolute Performance http://absolute-performance.com
 #
@@ -25,6 +25,9 @@
 #   noMatchMessage, defaults to 'No Matches'
 #   afterFilter, callback that is executed after the results are filtered
 #
+# To use with a list, do
+#   $('ul').makeFilterable({searchField: 'input'})
+#
 # To use with a table, do
 #   $('table').makeFilterable({searchField: 'input'})
 #
@@ -38,7 +41,7 @@
 $ = jQuery
 
 $.fn.extend
-  makeFilterable: (options) ->
+  makeFilterable: (options = {}) ->
     # give up if using an unsupported browser
     return @ if $.browser.msie and ($.browser.version is '6.0' or $.browser.version is '7.0')
 
@@ -61,6 +64,11 @@ $.fn.extend
           new FilterableTable(@, settings)
         else
           console.log 'No search field provided for filtering table'
+      else if $(@).is 'ul'
+        if options.searchField?
+          new FilterableList(@, options)
+        else
+          console.log 'No search field provided for filtering list'
 
 class FilterableSelect
   constructor: (field, options) ->
@@ -279,18 +287,16 @@ class FilterableSelect
       newchar = chars.substring rand, rand + 1
     id.join ''
 
-class FilterableTable
-  constructor: (table, options) ->
-    @table = $(table)
+class FilterableList
+  constructor: (element, options) ->
+    @element = $(element)
     @afterFilter = options.afterFilter
-
-    @valueSelector = options.valueSelector
 
     @searchField = $(options.searchField)
     @searchField.attr('autocomplete', 'off')
-    @searchField.keyup @filterTable
+    @searchField.keyup @filter
 
-  filterTable: (event) =>
+  filter: (event) =>
     key = event.which ? event.keyCode
 
     switch key
@@ -304,15 +310,37 @@ class FilterableTable
     searchText = $.trim @searchField.val()
 
     if searchText.length == 0
-      @table.find('tbody tr').show()
+      @element.find('li').show()
     else
       regex = new RegExp searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i'
 
-      @table.find('tbody tr').each (index, row) =>
+      @element.find('li').each (index, row) =>
+        $(row).hide()
+
+        $(row).each (index, element) =>
+          if regex.test $(element).text()
+            $(element).show()
+
+    @afterFilter(@element) if @afterFilter?
+
+class FilterableTable extends FilterableList
+  constructor: (element, options) ->
+    super
+    @valueSelector = options.valueSelector
+
+  filterResults: =>
+    searchText = $.trim @searchField.val()
+
+    if searchText.length == 0
+      @element.find('tbody tr').show()
+    else
+      regex = new RegExp searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i'
+
+      @element.find('tbody tr').each (index, row) =>
         $(row).hide()
 
         $(row).find(@valueSelector).each (index, element) =>
           if regex.test $(element).text()
             $(element).parents('tr').show()
 
-    @afterFilter(@table) if @afterFilter?
+    @afterFilter(@element) if @afterFilter?
